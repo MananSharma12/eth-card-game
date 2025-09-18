@@ -13,9 +13,36 @@ contracts/docs/
 # Dotenv file
 .env
 contracts/.env
+frontend/.env*
 
 # IDE Files
 .idea
 
 # Packages
 contracts/node_modules
+frontend/node_modules
+
+# testing
+frontend/coverage
+
+# next.js
+frontend/.next/
+frontend/out/
+
+# production
+frontend/build
+
+# misc
+frontend/.DS_Store
+frontend/*.pem
+
+# debug
+frontend/npm-debug.log*
+
+# vercel
+.vercel
+
+# typescript
+frontend/*.tsbuildinfo
+frontend/next-env.d.ts
+

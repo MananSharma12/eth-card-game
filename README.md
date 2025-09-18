@@ -1,1 +1,2 @@
-# ETH NFT Card Game
+# HeroForge
+An ETH-based NFT Card Game
