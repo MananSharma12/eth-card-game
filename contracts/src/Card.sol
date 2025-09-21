@@ -3,8 +3,9 @@ pragma solidity ^0.8.13;
 
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {ERC721Enumerable} from "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Card is ERC721Enumerable {
+contract Card is ERC721Enumerable, Ownable {
     enum Class {
         Warrior,
         Ranger,
@@ -46,7 +47,7 @@ contract Card is ERC721Enumerable {
 
     error IncorrectAmount(uint256 sent, uint256 required);
 
-    constructor() ERC721("HeroCard", "HEROCARD") {}
+    constructor() ERC721("HeroCard", "HEROCARD") Ownable(msg.sender) {}
 
     function mint() external payable {
         if (msg.value != mintPrice) {
@@ -101,5 +102,13 @@ contract Card is ERC721Enumerable {
 
     function randomStat(uint256 rand, uint256 salt, uint8 floor) internal pure returns (uint8) {
         return floor + uint8(uint256(keccak256(abi.encode(rand, salt))) % (50 - floor + 1));
+    }
+
+    function withdraw() external onlyOwner {
+        payable(owner()).transfer(address(this).balance);
+    }
+
+    function setMintPrice(uint256 newPrice) external onlyOwner {
+        mintPrice = newPrice;
     }
 }
