@@ -1,6 +1,6 @@
 # Compiler files
-contracts/cache/
-contracts/out/
+cache/
+out/
 
 # Ignores development broadcast logs
 !/broadcast
