@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import {WagmiProvider} from "wagmi";
-import {config} from "@/app/config";
 import {ThemeProvider} from "@/components/theme-provider"
-import {QueryClientProvider} from "@tanstack/react-query";
-import {QueryClient} from "@tanstack/query-core";
+import {Providers} from "@/components/providers";
+import {Toaster} from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,11 +20,9 @@ export const metadata: Metadata = {
   description: "Forge your heroes",
 };
 
-const queryClient = new QueryClient();
-
 export default function RootLayout({
-  children,
-}: Readonly<{
+                                     children,
+                                   }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
@@ -34,18 +30,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
+      <Providers>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </Providers>
+      <Toaster/>
       </body>
     </html>
   );
