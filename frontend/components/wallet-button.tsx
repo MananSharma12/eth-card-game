@@ -21,7 +21,7 @@ export default function WalletButton() {
         <div className="flex items-center gap-2">
           <div className="flex flex-col items-end">
             <Badge variant="secondary">
-              Balance: {balance && <span className="text-m text-muted-foreground">{(Number(balance.value) / 1e18)} ETH</span>}
+              Balance: {balance && <span className="text-m">{(Number(balance.value) / 1e18)} ETH</span>}
             </Badge>
           </div>
           <Button
