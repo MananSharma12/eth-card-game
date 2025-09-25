@@ -44,6 +44,7 @@ contract Card is ERC721Enumerable, Ownable {
     mapping(uint256 => Hero) public heroes;
     uint256 public mintPrice = 0.001 ether;
     uint256 private _nextTokenId = 1;
+    mapping(uint256 => uint256) public seeds;
 
     error IncorrectAmount(uint256 sent, uint256 required);
 
@@ -59,6 +60,8 @@ contract Card is ERC721Enumerable, Ownable {
         uint256 rand = uint256(
             keccak256(abi.encodePacked(block.timestamp, msg.sender, tokenId))
         );
+
+        seeds[tokenId] = rand;
 
         Class classType = getClass(rand);
         Rarity rarity = getRarity(rand);
