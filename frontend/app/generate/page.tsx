@@ -10,30 +10,30 @@ import { Sparkles, TestTube, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { CONTRACT_ADDRESS_ETHERSCAN } from "@/lib/constants/contract"
+import { useMockHero } from "@/hooks/useMockHero";
+import { HeroCard } from "@/components/hero-card";
 
 export default function GeneratePage() {
   // DEMO STATES
   const [demoMode, setDemoMode] = useState(true)
   const [demoLoading, setDemoLoading] = useState(false)
-  const [showCard, setShowCard] = useState(false)
+  const { hero, generateHero } = useMockHero()
 
   // CONTRACT STATES
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   // const [isLoading, setIsLoading] = useState(false)
-  // const [generatedHero, setGeneratedHero] = useState<GeneratedHero | null>(null)
 
   // DEMO GENERATION
   const handleDemoGenerate = async () => {
     setDemoLoading(true)
     setError(null)
     setTransactionHash(null)
-    setShowCard(false)
 
     setTimeout(() => {
+      generateHero()
       setDemoLoading(false)
-      setTimeout(() => setShowCard(true), 500)
-    }, 2000)
+    }, 0)
   }
 
   // REAL CONTRACT GENERATION
@@ -47,7 +47,6 @@ export default function GeneratePage() {
       // setIsLoading(true)
       setError(null)
       setTransactionHash(null)
-      setShowCard(false)
 
       // 🔹 Contract call placeholder
       // const provider = new ethers.BrowserProvider((window as any).ethereum)
@@ -58,7 +57,6 @@ export default function GeneratePage() {
 
       // setTransactionHash(receipt.hash)
       // setGeneratedHero(heroFromEvent) // parse from contract event
-      // setShowCard(true)
     } catch (err: any) {
       setError(err.message || "Failed to generate hero")
     } finally {
@@ -177,7 +175,7 @@ export default function GeneratePage() {
 
                     {/* Generate Button */}
                     <Button
-                      onClick={demoMode ? handleDemoGenerate : handleGenerateHero}
+                      onClick={handleGenerateHero}
                       size="lg"
                       className="w-full text-lg py-6"
                     >
@@ -230,10 +228,18 @@ export default function GeneratePage() {
             <div className="flex justify-center">
               <div className="w-80 h-96 bg-muted/30 rounded-xl border-2 border-dashed flex items-center justify-center">
                 <div className="text-center">
-                  <Sparkles className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-                  <p className="text-muted-foreground">
-                    {showCard ? "Hero generated!" : "Your hero will appear here"}
-                  </p>
+                  <div className="flex justify-center">
+                    {hero ? (
+                      <HeroCard hero={hero} showCard />
+                    ) : (
+                      <div className="w-80 h-96 bg-muted/30 rounded-xl border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
+                        <div className="text-center">
+                          <Sparkles className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                          <p className="text-muted-foreground">Your hero NFT will appear here</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

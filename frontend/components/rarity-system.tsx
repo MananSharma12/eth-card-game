@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {Shield} from "lucide-react";
 
 export function RaritySystem() {
@@ -42,6 +43,14 @@ export function RaritySystem() {
           <h4 className="font-semibold text-legendary">Legendary</h4>
           <p className="text-sm text-muted-foreground">0.1-1%</p>
         </div>
+      </div>
+      <div className="text-center mt-6">
+        <Link
+          className="font-semibold underline uppercase"
+          href="/rarity"
+        >
+          Learn more about rarity
+        </Link>
       </div>
     </div>
   );
