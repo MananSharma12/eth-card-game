@@ -1,11 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sword, Shield, Zap, Heart, Brain, Eye, Sparkles, Star, Crown } from "lucide-react"
+import { Sword, Shield, Zap, Heart, Brain, Eye, Sparkles, Star, Crown, Target, Flame, Skull, Ghost } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { Hero } from "@/types/Hero";
+import type { Hero } from "@/types/Hero";
 
 interface HeroCardProps {
   hero: Hero
@@ -33,12 +33,26 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
 
   const getClassIcon = (heroClass: string) => {
     switch (heroClass) {
+      case "Warrior":
+        return <Sword className="h-8 w-8" />
+      case "Ranger":
+        return <Target className="h-8 w-8" />
       case "Mage":
-        return <Brain className="h-8 w-8" />
+        return <Flame className="h-8 w-8" />
       case "Healer":
         return <Heart className="h-8 w-8" />
-      case "Barbarian":
-        return <Sword className="h-8 w-8" />
+      case "Rogue":
+        return <Eye className="h-8 w-8" />
+      case "Berserker":
+        return <Skull className="h-8 w-8" />
+      case "Shaman":
+        return <Ghost className="h-8 w-8" />
+      case "Mindbender":
+        return <Brain className="h-8 w-8" />
+      case "Paladin":
+        return <Crown className="h-8 w-8" />
+      case "Warlock":
+        return <Star className="h-8 w-8" />
       default:
         return <Shield className="h-8 w-8" />
     }

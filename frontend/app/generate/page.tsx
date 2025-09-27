@@ -9,60 +9,154 @@ import { Label } from "@/components/ui/label"
 import { Sparkles, TestTube, ExternalLink } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/header"
-import { CONTRACT_ADDRESS_ETHERSCAN } from "@/lib/constants/contract"
+import { CONTRACT_ADDRESS_BLOCKCHAIN, CONTRACT_ADDRESS_ETHERSCAN } from "@/lib/constants/contract"
 import { useMockHero } from "@/hooks/useMockHero";
 import { HeroCard } from "@/components/hero-card";
+import type { Hero } from "@/types/Hero";
+import {ethers} from "ethers";
+import {getContract} from "@/lib/contractInstance";
+import {CLASS_KEYS, generateNameFromSeed, RARITY_KEYS} from "@/lib/nameGenerator";
 
 export default function GeneratePage() {
   // DEMO STATES
   const [demoMode, setDemoMode] = useState(true)
-  const [demoLoading, setDemoLoading] = useState(false)
   const { hero, generateHero } = useMockHero()
 
   // CONTRACT STATES
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  // const [isLoading, setIsLoading] = useState(false)
+  const [generatedHero, setGeneratedHero] = useState<Hero | null>(null)
 
   // DEMO GENERATION
   const handleDemoGenerate = async () => {
-    setDemoLoading(true)
     setError(null)
     setTransactionHash(null)
 
     setTimeout(() => {
       generateHero()
-      setDemoLoading(false)
     }, 0)
   }
 
-  // REAL CONTRACT GENERATION
   const handleGenerateHero = async () => {
     if (demoMode) {
       handleDemoGenerate()
       return
     }
 
+    setError(null)
+    setTransactionHash(null)
+    setGeneratedHero(null)
+
     try {
-      // setIsLoading(true)
-      setError(null)
-      setTransactionHash(null)
+      if (!(window as any).ethereum) throw new Error("No wallet found. Please install MetaMask or use a supported wallet.")
 
-      // 🔹 Contract call placeholder
-      // const provider = new ethers.BrowserProvider((window as any).ethereum)
-      // const signer = await provider.getSigner()
-      // const contract = getContract(signer)
-      // const tx = await contract.mintHero({ value: ethers.parseEther("0.001") })
-      // const receipt = await tx.wait()
+      const provider = new ethers.BrowserProvider((window as any).ethereum)
+      const signer = await provider.getSigner()
+      const userAddress = await signer.getAddress()
 
-      // setTransactionHash(receipt.hash)
-      // setGeneratedHero(heroFromEvent) // parse from contract event
-    } catch (err: any) {
-      setError(err.message || "Failed to generate hero")
-    } finally {
-      // setIsLoading(false)
+      const contract = getContract(signer)
+
+      let mintPrice
+      try {
+        mintPrice = await contract.mintPrice()
+      } catch {
+        mintPrice = ethers.parseEther("0.001")
+      }
+
+      const tx = await contract.mint({ value: mintPrice })
+      const receipt = await tx.wait()
+
+      const txHash = receipt.transactionHash ?? receipt.hash ?? null
+      if (txHash) setTransactionHash(txHash)
+
+      // 5) try to parse tokenId from Transfer event in logs
+      let tokenId: number | null = null
+      for (const log of receipt.logs) {
+        if (log.address.toLowerCase() !== CONTRACT_ADDRESS_BLOCKCHAIN.toLowerCase()) continue
+        try {
+          const parsed = contract.interface.parseLog(log)
+          if (parsed && parsed.name === "Transfer") {
+            const from = parsed.args[0]
+            const to = parsed.args[1]
+            const id = parsed.args[2]
+            if ((from === ethers.ZeroAddress || from === "0x0000000000000000000000000000000000000000")
+              && to.toLowerCase() === userAddress.toLowerCase()) {
+              tokenId = Number(id.toString ? id.toString() : id)
+              break
+            }
+          }
+        } catch (_) {}
+      }
+
+      if (tokenId === null) {
+        const balanceBN = await contract.balanceOf(userAddress)
+        const balance = Number(balanceBN.toString ? balanceBN.toString() : balanceBN)
+        if (balance === 0) throw new Error("Mint succeeded but owner has zero balance — unable to find tokenId")
+        const lastIndex = balance - 1
+        const idBN = await contract.tokenOfOwnerByIndex(userAddress, lastIndex)
+        tokenId = Number(idBN.toString ? idBN.toString() : idBN)
+      }
+
+      const heroRaw = await contract.heroes(tokenId)
+      let seedRaw: null
+      try { seedRaw = await contract.seeds(tokenId) } catch { seedRaw = null }
+
+      const classIndex = Number(heroRaw.classType ?? heroRaw[0])
+      const rarityIndex = Number(heroRaw.rarity ?? heroRaw[1])
+
+      let statsObj: any
+      if (heroRaw.stats) {
+        statsObj = heroRaw.stats
+      } else if (Array.isArray(heroRaw[2])) {
+        const arr = heroRaw[2]
+        statsObj = {
+          strength: Number(arr[0].toString ? arr[0].toString() : arr[0]),
+          health: Number(arr[1].toString ? arr[1].toString() : arr[1]),
+          dexterity: Number(arr[2].toString ? arr[2].toString() : arr[2]),
+          intellect: Number(arr[3].toString ? arr[3].toString() : arr[3]),
+          magic: Number(arr[4].toString ? arr[4].toString() : arr[4]),
+        }
+      } else {
+        statsObj = {
+          strength: Number(heroRaw.strength ?? heroRaw[2]?.strength ?? 0),
+          health: Number(heroRaw.health ?? heroRaw[2]?.health ?? 0),
+          dexterity: Number(heroRaw.dexterity ?? heroRaw[2]?.dexterity ?? 0),
+          intellect: Number(heroRaw.intellect ?? heroRaw[2]?.intellect ?? 0),
+          magic: Number(heroRaw.magic ?? heroRaw[2]?.magic ?? 0),
+        }
+      }
+
+      const seedBigInt = seedRaw ? BigInt(seedRaw.toString()) : BigInt(Date.now()) // fallback seed for name
+
+      const className = (CLASS_KEYS && CLASS_KEYS[classIndex]) ? CLASS_KEYS[classIndex] : `Class${classIndex}`
+      const rarityName = (RARITY_KEYS && RARITY_KEYS[rarityIndex]) ? RARITY_KEYS[rarityIndex] : `Rarity${rarityIndex}`
+
+      const name = generateNameFromSeed(seedBigInt, classIndex, rarityIndex)
+
+      const heroForUI: Hero = {
+        id: String(tokenId),
+        name,
+        class: className,
+        rarity: rarityName,
+        strength: Number(statsObj.strength ?? 0),
+        health: Number(statsObj.health ?? 0),
+        dexterity: Number(statsObj.dexterity ?? 0),
+        intellect: Number(statsObj.intellect ?? 0),
+        magic: Number(statsObj.magic ?? 0),
+      }
+
+      setGeneratedHero(heroForUI)
+    } catch (e: any) {
+      console.error(e)
+      if (e?.code === 4001) {
+        setError("Transaction rejected by user")
+      } else {
+        setError(e?.message || String(e))
+      }
     }
   }
+
+  const displayHero = demoMode ? hero : generatedHero
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-accent/10">
@@ -162,7 +256,7 @@ export default function GeneratePage() {
                             className="h-6 w-6 p-0"
                             onClick={() =>
                               window.open(
-                                `https://etherscan.io/tx/${transactionHash}`,
+                                `https://sepolia.etherscan.io/tx/${transactionHash}`,
                                 "_blank"
                               )
                             }
@@ -229,7 +323,7 @@ export default function GeneratePage() {
               <div className="w-80 h-96 bg-muted/30 rounded-xl border-2 border-dashed flex items-center justify-center">
                 <div className="text-center">
                   <div className="flex justify-center">
-                    {hero ? (
+                    {displayHero ? (
                       <HeroCard hero={hero} showCard />
                     ) : (
                       <div className="w-80 h-96 bg-muted/30 rounded-xl border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">

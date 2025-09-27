@@ -19,7 +19,7 @@ const NOUNS: Record<string, string[]> = {
   Warlock: ["Warlock", "Hexer", "Binder", "Occultist", "Warbringer"],
 };
 
-const CLASS_KEYS = [
+export const CLASS_KEYS = [
   "Warrior",
   "Ranger",
   "Mage",
@@ -32,7 +32,7 @@ const CLASS_KEYS = [
   "Warlock",
 ] as const;
 
-const RARITY_KEYS = [
+export const RARITY_KEYS = [
   "Common",
   "Uncommon",
   "Rare",
