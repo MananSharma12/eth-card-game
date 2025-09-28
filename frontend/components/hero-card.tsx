@@ -50,7 +50,7 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
 
       setTimeout(() => setShowStats(true), 1200)
     }
-  }, [showCard, hero?.rarity])
+  }, [showCard, hero?.rarity, hero])
 
   // helpers ...
 

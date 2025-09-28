@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {useAccount, useBalance, useConnect, useDisconnect} from "wagmi";
+import {useAccount, useConnect, useDisconnect} from "wagmi";
 import { Wallet, LogOut } from "lucide-react"
 import {Button} from "@/components/ui/button";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
@@ -9,7 +9,7 @@ import {toast} from "sonner";
 
 export default function WalletButton() {
   const { connect, connectors } = useConnect()
-  const { address, isConnected } = useAccount()
+  const { isConnected } = useAccount()
   const { disconnect } = useDisconnect()
 
   if (isConnected) {

@@ -36,13 +36,12 @@ interface CollectionHeroCardProps {
 }
 
 export function CollectionHeroCard({
- heroId,
  classIndex,
  rarityIndex,
  stats,
  seed
 }: CollectionHeroCardProps) {
-  const [showStats, setShowStats] = useState(true)
+  const [showStats] = useState(true)
   const [showParticles] = useState(true)
 
   const rarity = RARITY_KEYS[rarityIndex]
@@ -217,7 +216,7 @@ export function CollectionHeroCard({
         <CardContent className="relative pt-0">
           {/* Stats */}
           <div className="space-y-3">
-            {Object.entries(stats).map(([stat, value], index) => (
+            {Object.entries(stats).map(([stat, value]) => (
               <div key={stat} className="space-y-1">
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">

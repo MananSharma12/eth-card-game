@@ -17,6 +17,34 @@ import {ethers} from "ethers";
 import {getContract} from "@/lib/contractInstance";
 import {CLASS_KEYS, generateNameFromSeed, RARITY_KEYS} from "@/lib/nameGenerator";
 
+// Define types for better type safety
+interface EthereumWindow extends Window {
+  ethereum?: {
+    request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+    [key: string]: unknown;
+  };
+}
+
+interface HeroStats {
+  strength: number;
+  health: number;
+  dexterity: number;
+  intellect: number;
+  magic: number;
+}
+
+interface ContractHeroRaw {
+  classType?: unknown;
+  rarity?: unknown;
+  stats?: HeroStats;
+  strength?: unknown;
+  health?: unknown;
+  dexterity?: unknown;
+  intellect?: unknown;
+  magic?: unknown;
+  [index: number]: unknown;
+}
+
 export default function GeneratePage() {
   // DEMO STATES
   const [demoMode, setDemoMode] = useState(true)
@@ -50,9 +78,10 @@ export default function GeneratePage() {
     setIsLoading(true)
 
     try {
-      if (!(window as any).ethereum) throw new Error("No wallet found. Please install MetaMask or use a supported wallet.")
+      const windowWithEthereum = window as unknown as EthereumWindow
+      if (!windowWithEthereum.ethereum) throw new Error("No wallet found. Please install MetaMask or use a supported wallet.")
 
-      const provider = new ethers.BrowserProvider((window as any).ethereum)
+      const provider = new ethers.BrowserProvider(windowWithEthereum.ethereum)
       const signer = await provider.getSigner()
       const userAddress = await signer.getAddress()
 
@@ -87,7 +116,7 @@ export default function GeneratePage() {
               break
             }
           }
-        } catch (_) {}
+        } catch {}
       }
 
       if (tokenId === null) {
@@ -99,36 +128,36 @@ export default function GeneratePage() {
         tokenId = Number(idBN.toString ? idBN.toString() : idBN)
       }
 
-      const heroRaw = await contract.heroes(tokenId)
-      let seedRaw: null
+      const heroRaw = await contract.heroes(tokenId) as ContractHeroRaw
+      let seedRaw: unknown
       try { seedRaw = await contract.seeds(tokenId) } catch { seedRaw = null }
 
       const classIndex = Number(heroRaw.classType ?? heroRaw[0])
       const rarityIndex = Number(heroRaw.rarity ?? heroRaw[1])
 
-      let statsObj: any
+      let statsObj: HeroStats
       if (heroRaw.stats) {
         statsObj = heroRaw.stats
       } else if (Array.isArray(heroRaw[2])) {
-        const arr = heroRaw[2]
+        const arr = heroRaw[2] as unknown[]
         statsObj = {
-          strength: Number(arr[0].toString ? arr[0].toString() : arr[0]),
-          health: Number(arr[1].toString ? arr[1].toString() : arr[1]),
-          dexterity: Number(arr[2].toString ? arr[2].toString() : arr[2]),
-          intellect: Number(arr[3].toString ? arr[3].toString() : arr[3]),
-          magic: Number(arr[4].toString ? arr[4].toString() : arr[4]),
+          strength: Number(arr[0]?.toString ? (arr[0] as { toString(): string }).toString() : arr[0]),
+          health: Number(arr[1]?.toString ? (arr[1] as { toString(): string }).toString() : arr[1]),
+          dexterity: Number(arr[2]?.toString ? (arr[2] as { toString(): string }).toString() : arr[2]),
+          intellect: Number(arr[3]?.toString ? (arr[3] as { toString(): string }).toString() : arr[3]),
+          magic: Number(arr[4]?.toString ? (arr[4] as { toString(): string }).toString() : arr[4]),
         }
       } else {
         statsObj = {
-          strength: Number(heroRaw.strength ?? heroRaw[2]?.strength ?? 0),
-          health: Number(heroRaw.health ?? heroRaw[2]?.health ?? 0),
-          dexterity: Number(heroRaw.dexterity ?? heroRaw[2]?.dexterity ?? 0),
-          intellect: Number(heroRaw.intellect ?? heroRaw[2]?.intellect ?? 0),
-          magic: Number(heroRaw.magic ?? heroRaw[2]?.magic ?? 0),
+          strength: Number(heroRaw.strength ?? (heroRaw[2] as ContractHeroRaw | undefined)?.strength ?? 0),
+          health: Number(heroRaw.health ?? (heroRaw[2] as ContractHeroRaw | undefined)?.health ?? 0),
+          dexterity: Number(heroRaw.dexterity ?? (heroRaw[2] as ContractHeroRaw | undefined)?.dexterity ?? 0),
+          intellect: Number(heroRaw.intellect ?? (heroRaw[2] as ContractHeroRaw | undefined)?.intellect ?? 0),
+          magic: Number(heroRaw.magic ?? (heroRaw[2] as ContractHeroRaw | undefined)?.magic ?? 0),
         }
       }
 
-      const seedBigInt = seedRaw ? BigInt(seedRaw.toString()) : BigInt(Date.now()) // fallback seed for name
+      const seedBigInt = seedRaw ? BigInt((seedRaw as { toString(): string }).toString()) : BigInt(Date.now())
 
       const className = (CLASS_KEYS && CLASS_KEYS[classIndex]) ? CLASS_KEYS[classIndex] : `Class${classIndex}`
       const rarityName = (RARITY_KEYS && RARITY_KEYS[rarityIndex]) ? RARITY_KEYS[rarityIndex] : `Rarity${rarityIndex}`
@@ -148,12 +177,13 @@ export default function GeneratePage() {
       }
 
       setGeneratedHero(heroForUI)
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e)
-      if (e?.code === 4001) {
+      const error = e as { code?: number; message?: string }
+      if (error?.code === 4001) {
         setError("Transaction rejected by user")
       } else {
-        setError(e?.message || String(e))
+        setError(error?.message || String(e))
       }
     } finally {
       setIsLoading(false)
