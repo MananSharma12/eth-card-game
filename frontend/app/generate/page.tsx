@@ -12,12 +12,11 @@ import { Header } from "@/components/header"
 import { CONTRACT_ADDRESS_BLOCKCHAIN, CONTRACT_ADDRESS_ETHERSCAN } from "@/lib/constants/contract"
 import { useMockHero } from "@/hooks/useMockHero";
 import { HeroCard } from "@/components/hero-card";
-import type { Hero } from "@/types/Hero";
+import type { Hero, HeroClass, HeroRarity } from "@/types/Hero";
 import {ethers} from "ethers";
 import {getContract} from "@/lib/contractInstance";
 import {CLASS_KEYS, generateNameFromSeed, RARITY_KEYS} from "@/lib/nameGenerator";
 
-// Define types for better type safety
 interface EthereumWindow extends Window {
   ethereum?: {
     request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
@@ -167,8 +166,8 @@ export default function GeneratePage() {
       const heroForUI: Hero = {
         id: String(tokenId),
         name,
-        class: className,
-        rarity: rarityName,
+        class: className as HeroClass,
+        rarity: rarityName as HeroRarity,
         strength: Number(statsObj.strength ?? 0),
         health: Number(statsObj.health ?? 0),
         dexterity: Number(statsObj.dexterity ?? 0),

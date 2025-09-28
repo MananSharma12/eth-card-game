@@ -44,9 +44,9 @@ export function CollectionHeroCard({
   const [showStats] = useState(true)
   const [showParticles] = useState(true)
 
-  const rarity = RARITY_KEYS[rarityIndex]
-  const className = CLASS_KEYS[classIndex]
-  const displayName = generateNameFromSeed(seed, classIndex, rarityIndex)
+  const rarity = RARITY_KEYS[rarityIndex] || 'Common'
+  const className = CLASS_KEYS[classIndex] || 'Warrior'
+  const displayName = generateNameFromSeed(seed || BigInt(0), classIndex, rarityIndex)
 
   const getClassIcon = (heroClass: string) => {
     switch (heroClass) {

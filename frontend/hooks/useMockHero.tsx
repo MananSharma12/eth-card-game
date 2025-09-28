@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Hero } from "@/types/Hero"
+import { Hero, HeroClass } from "@/types/Hero"
 
 export function useMockHero() {
   const [hero, setHero] = useState<Hero | null>(null)
@@ -41,7 +41,7 @@ export function useMockHero() {
     setHero({
       id: String(Math.floor(Math.random() * 10000)),
       name: `Hero #${Math.floor(Math.random() * 10000)}`,
-      class: classes[Math.floor(Math.random() * classes.length)],
+      class: classes[Math.floor(Math.random() * classes.length)] as HeroClass,
       rarity: picked,
       strength: randStat(),
       health: randStat(),
