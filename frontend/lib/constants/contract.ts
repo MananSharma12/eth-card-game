@@ -1,4 +1,4 @@
-export const CONTRACT_ADDRESS_ETHERSCAN = process.env.NEXT_CONTRACT_ADDRESS_ETHERSCAN || "";
+export const CONTRACT_ADDRESS_ETHERSCAN = "https://sepolia.etherscan.io/address/0xB6a2f7D56D173B38274EEd7FfAd0b040Afafa3bd";
 export const CONTRACT_ADDRESS_BLOCKCHAIN = "0xB6a2f7D56D173B38274EEd7FfAd0b040Afafa3bd";
 export const CONTRACT_ABI = [
   {

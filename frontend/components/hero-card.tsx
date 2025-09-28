@@ -1,14 +1,28 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Sword, Shield, Zap, Heart, Brain, Eye, Sparkles, Star, Crown, Target, Flame, Skull, Ghost } from "lucide-react"
+import {
+  Sword,
+  Shield,
+  Zap,
+  Heart,
+  Brain,
+  Eye,
+  Sparkles,
+  Star,
+  Crown,
+  Target,
+  Flame,
+  Skull,
+  Ghost,
+} from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import type { Hero } from "@/types/Hero";
+import type { Hero } from "@/types/Hero"
 
 interface HeroCardProps {
-  hero: Hero
+  hero?: Hero | null
   showCard?: boolean
 }
 
@@ -18,18 +32,27 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
   const [showStats, setShowStats] = useState(false)
 
   useEffect(() => {
+    if (!hero) return
+
     if (showCard) {
       setTimeout(() => setIsFlipped(true), 100)
 
       if (hero.rarity !== "Common") {
         setTimeout(() => setShowParticles(true), 800)
-        const particleDuration = hero.rarity === "Legendary" ? 5000 : hero.rarity === "Epic" ? 4000 : 3000
+        const particleDuration =
+          hero.rarity === "Legendary"
+            ? 5000
+            : hero.rarity === "Epic"
+              ? 4000
+              : 3000
         setTimeout(() => setShowParticles(false), particleDuration)
       }
 
       setTimeout(() => setShowStats(true), 1200)
     }
-  }, [showCard, hero.rarity])
+  }, [showCard, hero?.rarity])
+
+  // helpers ...
 
   const getClassIcon = (heroClass: string) => {
     switch (heroClass) {
@@ -155,13 +178,31 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
     return "bg-muted"
   }
 
+  // 🔒 Guarded render: fallback if hero missing
+  if (!hero) {
+    return (
+      <Card className="w-80 h-100 flex items-center justify-center border-2 border-gray-200">
+        <CardContent className="text-center text-muted-foreground">
+          <p>Loading hero...</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  // --- real hero card below ---
+
   return (
     <div className="relative">
-      {/* Enhanced Particle Effects */}
+      {/* Particle Effects */}
       {showParticles && hero.rarity !== "Common" && (
         <div className="absolute inset-0 pointer-events-none z-10">
-          {/* Sparkle particles */}
-          {[...Array(hero.rarity === "Legendary" ? 30 : hero.rarity === "Epic" ? 20 : 15)].map((_, i) => (
+          {[...Array(
+            hero.rarity === "Legendary"
+              ? 30
+              : hero.rarity === "Epic"
+                ? 20
+                : 15
+          )].map((_, i) => (
             <div
               key={i}
               className={cn(
@@ -172,7 +213,7 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
                     ? "text-epic"
                     : hero.rarity === "Rare"
                       ? "text-rare"
-                      : "text-uncommon",
+                      : "text-uncommon"
               )}
               style={{
                 left: `${Math.random() * 100}%`,
@@ -193,7 +234,7 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
       )}
 
       {/* Card Container with Enhanced Flip Animation */}
-      <div className="relative w-80 h-96 perspective-1000">
+      <div className="relative w-80 h-100 perspective-1000">
         <div
           className={cn(
             "relative w-full h-full transition-transform duration-700 transform-style-preserve-3d",
@@ -205,11 +246,7 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
             <Card className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 border-2 border-primary/30">
               <CardContent className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <div className="relative">
-                    <Sparkles className="h-16 w-16 text-primary mx-auto mb-4 animate-spin" />
-                    {/* Shimmer effect on the back */}
-                    <div className="absolute inset-0 shimmer rounded-full" />
-                  </div>
+                  <Sparkles className="h-16 w-16 text-primary mx-auto mb-4 animate-spin" />
                   <h3 className="text-xl font-bold text-primary">HeroForge NFT</h3>
                   <p className="text-muted-foreground">Generating...</p>
                 </div>
@@ -264,23 +301,6 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
               </CardHeader>
 
               <CardContent className="relative pt-0">
-                {/* Hero Avatar with enhanced effects */}
-                <div
-                  className={cn(
-                    "aspect-square bg-gradient-to-br rounded-lg mb-4 flex items-center justify-center border bounce-in relative overflow-hidden",
-                    getRarityGradient(hero.rarity),
-                    getRarityBorderColor(hero.rarity),
-                  )}
-                  style={{ animationDelay: "1s" }}
-                >
-                  {/* Avatar shimmer effect for legendary */}
-                  {hero.rarity === "Legendary" && <div className="absolute inset-0 shimmer" />}
-                  <div className={cn("text-6xl relative z-10", getRarityTextColor(hero.rarity))}>
-                    {getClassIcon(hero.class)}
-                  </div>
-                </div>
-
-                {/* Animated Stats */}
                 <div className="space-y-3">
                   {Object.entries({
                     strength: hero.strength,
@@ -317,32 +337,35 @@ export function HeroCard({ hero, showCard = true }: HeroCardProps) {
                     </div>
                   ))}
                 </div>
-
-                {/* Animated Rarity Stars */}
-                <div className={cn("flex justify-center mt-4 gap-1 bounce-in")} style={{ animationDelay: "1.8s" }}>
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        "h-4 w-4 transition-all duration-300",
-                        i <
-                        (hero.rarity === "Legendary"
-                          ? 5
-                          : hero.rarity === "Epic"
-                            ? 4
-                            : hero.rarity === "Rare"
-                              ? 3
-                              : hero.rarity === "Uncommon"
-                                ? 2
-                                : 1)
-                          ? getRarityTextColor(hero.rarity) + " fill-current sparkle"
-                          : "text-muted-foreground",
-                      )}
-                      style={{ animationDelay: `${2 + i * 0.1}s` }}
-                    />
-                  ))}
-                </div>
               </CardContent>
+
+              {/* Animated Rarity Stars */}
+              <div
+                className={cn("flex justify-center mt-10 gap-1 bounce-in")}
+                style={{ animationDelay: "1.8s" }}
+              >
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={cn(
+                      "h-8 w-8 transition-all duration-300",
+                      i <
+                      (hero.rarity === "Legendary"
+                        ? 5
+                        : hero.rarity === "Epic"
+                          ? 4
+                          : hero.rarity === "Rare"
+                            ? 3
+                            : hero.rarity === "Uncommon"
+                              ? 2
+                              : 1)
+                        ? getRarityTextColor(hero.rarity) + " fill-current sparkle"
+                        : "text-muted-foreground"
+                    )}
+                    style={{ animationDelay: `${2 + i * 0.1}s` }}
+                  />
+                ))}
+              </div>
             </Card>
           </div>
         </div>

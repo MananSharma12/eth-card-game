@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import {useAccount, useBalance, useConnect, useDisconnect} from "wagmi";
 import { Wallet, LogOut } from "lucide-react"
 import {Button} from "@/components/ui/button";
-import {Badge} from "@/components/ui/badge";
 import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu";
 import {toast} from "sonner";
 
@@ -11,18 +11,17 @@ export default function WalletButton() {
   const { connect, connectors } = useConnect()
   const { address, isConnected } = useAccount()
   const { disconnect } = useDisconnect()
-  const { data: balance } = useBalance({
-    address: address,
-  })
 
   if (isConnected) {
     return (
       <>
         <div className="flex items-center gap-2">
           <div className="flex flex-col items-end">
-            <Badge variant="secondary">
-              Balance: {balance && <span className="text-m">{(Number(balance.value) / 1e18)} ETH</span>}
-            </Badge>
+            <Link href="/collection">
+              <Button variant="secondary">
+                Your Collection
+              </Button>
+            </Link>
           </div>
           <Button
             onClick={() => {
