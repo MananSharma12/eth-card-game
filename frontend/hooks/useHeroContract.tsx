@@ -41,9 +41,23 @@ export function useHeroContract() {
             args: [tokenId],
           })
 
-          console.log(heroData);
+          let seedData = null
+          try {
+            seedData = await publicClient.readContract({
+              address: CONTRACT_ADDRESS_BLOCKCHAIN,
+              abi: CONTRACT_ABI,
+              functionName: "seeds",
+              args: [tokenId],
+            })
+          } catch (err) {
+            console.warn(`Could not fetch seed for token ${tokenId}:`, err)
+          }
 
-          heroes.push({ id: Number(tokenId), ...heroData })
+          heroes.push({
+            id: Number(tokenId),
+            seed: seedData,
+            ...heroData
+          })
         }
 
         setOwnedHeroes(heroes)

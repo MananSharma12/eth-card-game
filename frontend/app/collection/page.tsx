@@ -123,7 +123,7 @@ export default function CollectionPage() {
                 <Card className="text-center p-4">
                   <CardContent className="p-0">
                     <div className="text-2xl font-bold text-legendary">
-                      {ownedHeroes.filter((h) => h.rarity === "Legendary").length}
+                      {ownedHeroes.filter((h) => h[1] === 5).length}
                     </div>
                     <div className="text-sm text-muted-foreground">Legendary</div>
                   </CardContent>
@@ -131,7 +131,7 @@ export default function CollectionPage() {
                 <Card className="text-center p-4">
                   <CardContent className="p-0">
                     <div className="text-2xl font-bold text-epic">
-                      {ownedHeroes.filter((h) => h.rarity === "Epic").length}
+                      {ownedHeroes.filter((h) => h[1] === 4).length}
                     </div>
                     <div className="text-sm text-muted-foreground">Epic</div>
                   </CardContent>
@@ -139,7 +139,7 @@ export default function CollectionPage() {
                 <Card className="text-center p-4">
                   <CardContent className="p-0">
                     <div className="text-2xl font-bold text-rare">
-                      {ownedHeroes.filter((h) => h.rarity === "Rare").length}
+                      {ownedHeroes.filter((h) => h[1] === 3).length}
                     </div>
                     <div className="text-sm text-muted-foreground">Rare</div>
                   </CardContent>
@@ -163,6 +163,7 @@ export default function CollectionPage() {
                     classIndex={hero[0]}
                     rarityIndex={hero[1]}
                     stats={hero[2]}
+                    seed={hero["seed"]}
                   />
                 ))}
               </div>

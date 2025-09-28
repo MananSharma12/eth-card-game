@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import {useState} from "react"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Badge} from "@/components/ui/badge"
 import {
   Sword,
   Target,
@@ -18,20 +18,21 @@ import {
   Zap,
   Sparkles,
 } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { generateNameFromSeed, CLASS_KEYS, RARITY_KEYS } from "@/lib/nameGenerator"
+import {cn} from "@/lib/utils"
+import {generateNameFromSeed, CLASS_KEYS, RARITY_KEYS} from "@/lib/nameGenerator"
 
 interface CollectionHeroCardProps {
-  heroId: number
-  classIndex: number
-  rarityIndex: number
+  heroId: number,
+  classIndex: number,
+  rarityIndex: number,
   stats: {
     strength: number
     health: number
     dexterity: number
     intellect: number
     magic: number
-  }
+  },
+  seed: bigint,
 }
 
 export function CollectionHeroCard({
@@ -39,38 +40,39 @@ export function CollectionHeroCard({
  classIndex,
  rarityIndex,
  stats,
+ seed
 }: CollectionHeroCardProps) {
   const [showStats, setShowStats] = useState(true)
   const [showParticles] = useState(true)
 
   const rarity = RARITY_KEYS[rarityIndex]
   const className = CLASS_KEYS[classIndex]
-  const displayName = generateNameFromSeed(heroId, classIndex, rarityIndex)
+  const displayName = generateNameFromSeed(seed, classIndex, rarityIndex)
 
   const getClassIcon = (heroClass: string) => {
     switch (heroClass) {
       case "Warrior":
-        return <Sword className="h-8 w-8" />
+        return <Sword className="h-8 w-8"/>
       case "Ranger":
-        return <Target className="h-8 w-8" />
+        return <Target className="h-8 w-8"/>
       case "Mage":
-        return <Flame className="h-8 w-8" />
+        return <Flame className="h-8 w-8"/>
       case "Healer":
-        return <Heart className="h-8 w-8" />
+        return <Heart className="h-8 w-8"/>
       case "Rogue":
-        return <Eye className="h-8 w-8" />
+        return <Eye className="h-8 w-8"/>
       case "Berserker":
-        return <Skull className="h-8 w-8" />
+        return <Skull className="h-8 w-8"/>
       case "Shaman":
-        return <Ghost className="h-8 w-8" />
+        return <Ghost className="h-8 w-8"/>
       case "Mindbender":
-        return <Brain className="h-8 w-8" />
+        return <Brain className="h-8 w-8"/>
       case "Paladin":
-        return <Crown className="h-8 w-8" />
+        return <Crown className="h-8 w-8"/>
       case "Warlock":
-        return <Star className="h-8 w-8" />
+        return <Star className="h-8 w-8"/>
       default:
-        return <Shield className="h-8 w-8" />
+        return <Shield className="h-8 w-8"/>
     }
   }
 
@@ -128,17 +130,17 @@ export function CollectionHeroCard({
   const getStatIcon = (stat: string) => {
     switch (stat) {
       case "strength":
-        return <Sword className="h-4 w-4" />
+        return <Sword className="h-4 w-4"/>
       case "health":
-        return <Heart className="h-4 w-4" />
+        return <Heart className="h-4 w-4"/>
       case "dexterity":
-        return <Eye className="h-4 w-4" />
+        return <Eye className="h-4 w-4"/>
       case "intellect":
-        return <Brain className="h-4 w-4" />
+        return <Brain className="h-4 w-4"/>
       case "magic":
-        return <Zap className="h-4 w-4" />
+        return <Zap className="h-4 w-4"/>
       default:
-        return <Shield className="h-4 w-4" />
+        return <Shield className="h-4 w-4"/>
     }
   }
 
@@ -183,7 +185,7 @@ export function CollectionHeroCard({
                 animationDuration: `${1.5 + Math.random()}s`,
               }}
             >
-              <Sparkles className="h-3 w-3" />
+              <Sparkles className="h-3 w-3"/>
             </div>
           ))}
         </div>
@@ -196,7 +198,7 @@ export function CollectionHeroCard({
           getRarityBorderColor(rarity)
         )}
       >
-        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-10", getRarityGradient(rarity))} />
+        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-10", getRarityGradient(rarity))}/>
 
         <CardHeader className="relative pb-2">
           <div className="flex items-center justify-between mb-2">
@@ -231,7 +233,7 @@ export function CollectionHeroCard({
                       getStatBarColor(value),
                       showStats ? "w-full" : "w-0"
                     )}
-                    style={{ width: `${value}%` }}
+                    style={{width: `${value}%`}}
                   />
                 </div>
               </div>

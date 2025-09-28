@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
-import { Sparkles, TestTube, ExternalLink } from "lucide-react"
+import { Sparkles, TestTube, ExternalLink, Loader2 } from "lucide-react"
 import Link from "next/link"
 import { Header } from "@/components/header"
 import { CONTRACT_ADDRESS_BLOCKCHAIN, CONTRACT_ADDRESS_ETHERSCAN } from "@/lib/constants/contract"
@@ -26,6 +26,7 @@ export default function GeneratePage() {
   const [transactionHash, setTransactionHash] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [generatedHero, setGeneratedHero] = useState<Hero | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
 
   // DEMO GENERATION
   const handleDemoGenerate = async () => {
@@ -46,6 +47,7 @@ export default function GeneratePage() {
     setError(null)
     setTransactionHash(null)
     setGeneratedHero(null)
+    setIsLoading(true)
 
     try {
       if (!(window as any).ethereum) throw new Error("No wallet found. Please install MetaMask or use a supported wallet.")
@@ -153,6 +155,8 @@ export default function GeneratePage() {
       } else {
         setError(e?.message || String(e))
       }
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -272,8 +276,14 @@ export default function GeneratePage() {
                       onClick={handleGenerateHero}
                       size="lg"
                       className="w-full text-lg py-6"
+                      disabled={isLoading}
                     >
-                      {demoMode ? (
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                          Minting Hero...
+                        </>
+                      ) : demoMode ? (
                         <>
                           <TestTube className="mr-2 h-5 w-5" />
                           Generate Demo Hero (FREE)
@@ -324,7 +334,12 @@ export default function GeneratePage() {
                 <div className="text-center">
                   <div className="flex justify-center">
                     {displayHero ? (
-                      <HeroCard hero={hero} showCard />
+                      <HeroCard hero={displayHero} showCard />
+                    ) : isLoading ? (
+                      <div className="text-center">
+                        <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
+                        <p className="text-muted-foreground">Minting your hero on-chain...</p>
+                      </div>
                     ) : (
                       <div className="w-80 h-96 bg-muted/30 rounded-xl border-2 border-dashed border-muted-foreground/30 flex items-center justify-center">
                         <div className="text-center">
